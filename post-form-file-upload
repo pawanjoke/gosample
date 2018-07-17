@@ -1,0 +1,19 @@
+	file, _ := os.Open("sample.png")
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("photo", filepath.Base("sample.png"))
+
+	io.Copy(part, file)
+
+	writer.WriteField("user_id", "1")
+	writer.WriteField("company_id", "1")
+	writer.WriteField("lat", "13.75550000")
+	writer.WriteField("long", "100.5696215")
+
+	writer.Close()
+
+	req, _ := http.NewRequest("POST", "/api/v1/clocktimes", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	resp := httptest.NewRecorder()
+	route.ServeHTTP(resp, req)
